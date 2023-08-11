@@ -5,7 +5,7 @@ ROS package that handles control on the Jetson Xavier.
 
 ```
 cd ~/catkin_ws/src
-git clone git@github.com:USCAUVTeam/mantaray_rpi.git
+git clone git@github.com:USCAUVTeam/mantaray_xavier.git
 cd ..
 catkin_make
 ```
