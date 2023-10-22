@@ -1,0 +1,5 @@
+<launch>
+    <include file="$(find zed_wrapper)/launch/zedm.launch">
+        <arg name="publish_urdf" value="false" />
+    </include>
+</launch>

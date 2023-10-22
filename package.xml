@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>xavier_controls</name>
+  <name>mantaray_xavier</name>
   <version>0.0.0</version>
-  <description>The xavier_controls package</description>
+  <description>The mantaray_xavier package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
