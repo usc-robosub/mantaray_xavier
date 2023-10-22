@@ -1,5 +1,7 @@
 # mantaray_xavier
-ROS package that handles control on the Jetson Xavier.
+ROS package for the mantaray sub on the Jetson Xavier.
+
+### Please use the master branch. The repository is intended to be a single ROS Package that puts together many packages and connects to the RPI roscore. The dependencies of this project should be cloned as packages into the catkin workspace or installed onto the machine path.
 
 ## Installation
 
@@ -7,6 +9,7 @@ ROS package that handles control on the Jetson Xavier.
 cd ~/catkin_ws/src
 git clone git@github.com:USCAUVTeam/mantaray_xavier.git
 git clone --recursive https://github.com/stereolabs/zed-ros-wrapper.git
+git clone --recursive git@github.com:leggedrobotics/darknet_ros.git
 cd ../
 rosdep install --from-paths src --ignore-src -r -y
 catkin_make -DCMAKE_BUILD_TYPE=Release
