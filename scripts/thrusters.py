@@ -1,10 +1,18 @@
 #!/usr/bin/env python3   
 
+'''
+Input:
+
+
+Output:
+Gives a normalized output from -1 to 1 with 0 meaning the motor doesn't move.
+The type of the message is a float64 standard message.
+'''
+
 import time
 import rospy
 import pandas as pd
 import rospkg
-import math
 import time
 from std_msgs.msg import Float64
 

@@ -1,0 +1,22 @@
+<!--
+Current architecture:
+
+thruster_limiter.py will create a /mantaray/thruster_limiter/[] topic that will take a normalized number from 
+-1 to 1 as input. This number will be the set point target velocity for the specific motor. But to prevent
+the vehicle from spinning the motors faster than the vehicle is electrically capable of spinning the motors,
+this topic will prevent the input from being beyond a set limit, both in terms of acceleration and velocity.
+Therefore, it will incremently move the setpoint velocity.
+The output of thruster_limiter.py will become the input of /mantaray/thruster/[], which is created in thrusters.py
+This topic will handle the conversion between the simulation and hardware output.
+  -->
+
+<launch>
+  <param name="sim" value="true"/>
+  <param name="reversed_thrusters"  type="list" value="[2, 3, 5, 6]"/>
+
+  <!-- Print the list parameter -->
+  <node name="print_params" pkg="rospy" type="rosparam" args="print /" />
+  
+  <node name="joy_to_thruster" pkg="mantaray_rpi" type="joy_to_thruster.py" output="screen" respawn="true"/>
+  <node name="thrusters" pkg="mantaray_rpi" type="control_pi_serial.py" output="screen" respawn="false"/>
+</launch>
