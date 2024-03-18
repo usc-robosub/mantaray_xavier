@@ -1,8 +1,6 @@
 # mantaray_xavier
 ROS package for the mantaray sub on the Jetson Xavier.
 
-### Please use the master branch. The repository is intended to be a single ROS Package that puts together many packages and connects to the RPI roscore. The dependencies of this project should be cloned as packages into the catkin workspace or installed onto the machine path.
-
 ## Installation
 
 ```
