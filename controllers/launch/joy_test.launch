@@ -1,0 +1,5 @@
+<launch>
+    <param name="output_type" value="sim"/>
+  <node name="linear_vel_controller" pkg="controllers" type="linear_velocity_controller" output="screen" respawn="true"/>
+  <!-- <node name= -->
+</launch> 
