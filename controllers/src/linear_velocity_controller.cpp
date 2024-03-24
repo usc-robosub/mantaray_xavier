@@ -21,27 +21,27 @@ int x_vel = 0;
 int y_vel = 0;
 int z_vel = 0;
 
-void linear_vel_x_callback(const std_msgs::Float64::ConstPtr& data) {
+void lin_vel_x_callback(const std_msgs::Float64::ConstPtr& data) {
     update = true;
     x_vel = data->data;
 }
 
-void linear_vel_y_callback(const std_msgs::Float64::ConstPtr& data) {
+void lin_vel_y_callback(const std_msgs::Float64::ConstPtr& data) {
     update = true;
     y_vel = data->data;
 }
 
-void linear_vel_z_callback(const std_msgs::Float64::ConstPtr& data) {
+void lin_vel_z_callback(const std_msgs::Float64::ConstPtr& data) {
     update = true;
     z_vel = data->data;
 }
 
 void thruster_mixer() {
-    int max = fmax(1, fabs(x_val) + fabs(y_vel));
+    int max = fmax(1, fabs(x_vel) + fabs(y_vel));
     // Normalize
     // Max is always between 1 and 2. z_vel doesn't contribute to it
-    thruster_values[0] = (x_val - y_vel)/max;
-    thruster_values[1] = (x_val + y_vel)/max;
+    thruster_values[0] = (x_vel - y_vel)/max;
+    thruster_values[1] = (x_vel + y_vel)/max;
     thruster_values[2] = (-x_vel + y_vel)/max;
     thruster_values[3] = (-x_vel - y_vel)/max;
     thruster_values[4] = z_vel;
@@ -69,8 +69,9 @@ int main (int argc, char **argv) {
     // Initialize thruster mapping values and thruster values
     thruster_mapping = new uint8_t[8];
     thruster_values = new double[8];
-    for (int i = 0; i<8; i++) {
-        ros::param::param<std::int>("thruster_"+str(i), thruster_mapping[i], i);
+    for (uint8_t i = 0; i<8; i++) {
+        // ros::param::param<uint8_t>("thruster_"+('0'+i), thruster_mapping[i], i);
+        thruster_mapping[i] = i;
         thruster_values[i] = 0;
     }
 
