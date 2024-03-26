@@ -17,9 +17,9 @@ uint8_t* thruster_mapping;
 double* thruster_values;
 
 bool update = false;
-int x_vel = 0;
-int y_vel = 0;
-int z_vel = 0;
+double x_vel = 0;
+double y_vel = 0;
+double z_vel = 0;
 
 void lin_vel_x_callback(const std_msgs::Float64::ConstPtr& data) {
     update = true;
@@ -58,11 +58,11 @@ int main (int argc, char **argv) {
 
     ros::NodeHandle linear_vel_node;
 
-    ros::Subscriber linear_vel_x = linear_vel_node.subscribe("/linear_vel/x", linear_vel_size, lin_vel_x_callback);
-    ros::Subscriber linear_vel_y = linear_vel_node.subscribe("/linear_vel/y", linear_vel_size, lin_vel_y_callback);
-    ros::Subscriber linear_vel_z = linear_vel_node.subscribe("/linear_vel/z", linear_vel_size, lin_vel_z_callback);
+    ros::Subscriber linear_vel_x = linear_vel_node.subscribe("linear_vel/x", linear_vel_size, lin_vel_x_callback);
+    ros::Subscriber linear_vel_y = linear_vel_node.subscribe("linear_vel/y", linear_vel_size, lin_vel_y_callback);
+    ros::Subscriber linear_vel_z = linear_vel_node.subscribe("linear_vel/z", linear_vel_size, lin_vel_z_callback);
     
-    linear_vel_pub = linear_vel_node.advertise<thruster_msgs::ThrustOutput>("/thrusters/lv_control_input", thrusters_size);
+    linear_vel_pub = linear_vel_node.advertise<thruster_msgs::ThrustOutput>("thrusters/lv_control_input", thrusters_size);
 
     ros::Rate loop_rate(10); //todo fix magic number
 
@@ -75,7 +75,6 @@ int main (int argc, char **argv) {
         thruster_values[i] = 0;
     }
 
-    thruster_msgs::ThrustOutput msg;
 
     while(ros::ok()) {
         //TODO:SOMONE if no new inputs sent after 5s, turn off motors
@@ -83,11 +82,13 @@ int main (int argc, char **argv) {
         if (update) {
             thruster_mixer();
             for (int i = 0; i<8; i++) {
+                thruster_msgs::ThrustOutput msg;
                 msg.num = thruster_mapping[i];
                 msg.val = thruster_values[i];
                 linear_vel_pub.publish(msg);
+                if (i == 7)
+                    ROS_DEBUG("Published to %i thrust val %f", msg.num, msg.val);
             }
-            ROS_DEBUG("Published to %i thrust val %f", msg.num, msg.val);
             update = false;
         }
         ros::spinOnce();
