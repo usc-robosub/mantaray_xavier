@@ -93,6 +93,7 @@ int main (int argc, char **argv) {
         }
         ros::spinOnce();
     }
-
+    delete [] thruster_mapping;
+    delete [] thruster_values;
     return 0;
 }
