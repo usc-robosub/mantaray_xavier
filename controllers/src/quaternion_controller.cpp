@@ -107,10 +107,10 @@ void thruster_mixer() {
     // Normalize
     // Max is always between 1 and 2. z_vel doesn't contribute to it
 
-    // thruster_values[0] = sp(2,0) * max;
-    // thruster_values[1] = -sp(2,0) * max;
-    // thruster_values[2] = sp(2,0) * max;
-    // thruster_values[3] = -sp(2,0) * max;
+    thruster_values[0] = sp(2,0) * max;
+    thruster_values[1] = -sp(2,0) * max;
+    thruster_values[2] = sp(2,0) * max;
+    thruster_values[3] = -sp(2,0) * max;
 
     // thruster_values[0] = -joy.LeftJoystickY * 25 - joy.LeftJoystickX * 25
     // thruster_values[1] = -joy.LeftJoystickY * 25 + joy.LeftJoystickX * 25
