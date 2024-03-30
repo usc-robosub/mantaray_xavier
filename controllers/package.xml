@@ -62,6 +62,9 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>thruster_msgs</exec_depend>
 
+  <depend>nav_msgs</depend>
+  <depend>tf</depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

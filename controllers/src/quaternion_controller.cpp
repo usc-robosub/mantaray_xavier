@@ -1,22 +1,27 @@
 /*
 Attitude (Quaternion) Controller Node
 Controls AUV attitude/orientation (roll, pitch, yaw)
+
+Need to connect robotQuat to RobotLocalization
 */
 #include "quaternion_controller.h"
 
-ros::Publisher linear_vel_pub;
+ros::Publisher quaternion_pub;
+
+ros::Subscriber odometryFilteredListener;
 
 tf::Quaternion robotQuat;
+Eigen::Matrix<double, 3, 1> sp;
 
-uint16_t linear_vel_size = 1; //size of linear velocity messages queue
+uint16_t quaternion_size = 1; //size of linear velocity messages queue
 uint16_t thrusters_size = 1; //size of thruster messages queue
 uint8_t* thruster_mapping;
 double* thruster_values;
 
 bool update = false;
-double x_vel = 0;
-double y_vel = 0;
-double z_vel = 0;
+double goal_x = 0;
+double goal_y = 0;
+double goal_z = 0;
 
 Eigen::Matrix <double, 3, 1> getAngularSetpoint(Eigen::Quaternion<double> sp, Eigen::Quaternion<double> meas) {
   
@@ -29,6 +34,7 @@ Eigen::Matrix <double, 3, 1> getAngularSetpoint(Eigen::Quaternion<double> sp, Ei
     } else {
         errShort = err;
     }
+
     ROS_INFO("Error: (%f, %f, %f)", errShort.x(), errShort.y(), errShort.z());
     Eigen::Matrix <double, 3, 1> angularSetpoint;
     angularSetpoint << errShort.x(), errShort.y(), errShort.z();
@@ -36,75 +42,110 @@ Eigen::Matrix <double, 3, 1> getAngularSetpoint(Eigen::Quaternion<double> sp, Ei
     return angularSetpoint;
 } 
 
-void run(int dt){
+void run(const ros::TimerEvent&){
     Eigen::Quaternion<double> meas(robotQuat.getW(), robotQuat.getX(), robotQuat.getY(), robotQuat.getZ());
     ROS_INFO("Measured Quaternion: (W=%f, X=%f, Y=%f, Z=%f)", meas.w(), meas.x(), meas.y(), meas.z());
 
     Eigen::Quaternion<double> qsp;
     
-    qsp = Eigen::AngleAxisd(this->setpoint(3,0), Eigen::Vector3d::UnitX())
-    * Eigen::AngleAxisd(this->setpoint(4,0), Eigen::Vector3d::UnitY())
-    * Eigen::AngleAxisd(this->setpoint(5,0), Eigen::Vector3d::UnitZ());
+    qsp = Eigen::AngleAxisd(goal_x, Eigen::Vector3d::UnitX())
+    * Eigen::AngleAxisd(goal_y, Eigen::Vector3d::UnitY())
+    * Eigen::AngleAxisd(goal_z, Eigen::Vector3d::UnitZ());
     
     ROS_INFO("Desired Setpoint Quaternion: (W=%f, X=%f, Y=%f, Z=%f)", qsp.w(), qsp.x(), qsp.y(), qsp.z());
+    ROS_INFO("Desired Setpoint Degrees: (X=%f, Y=%f, Z=%f)", goal_x, goal_y, qsp.z());
 
-
-    Eigen::Matrix<double, 3, 1> sp = getAngularSetpoint(qsp, meas);
     
-    thruster_values[0] = sp(2,0) * 100;
-    thruster_values[1] = -sp(2,0) * 100;
-    thruster_values[2] = sp(2,0) * 100;
-    thruster_values[3] = -sp(2,0) * 100;
-    thruster_values[4] = sp(0,0) * 100 - sp(1,0) * 100;
-    thruster_values[5] = sp(0,0) * 100 - sp(1,0) * 100;
-    thruster_values[6] = sp(0,0) * 100 + sp(1,0) * 100;
-    thruster_values[7] = sp(0,0) * 100 + sp(1,0) * 100;
-    ROS_INFO("Robot State: %f %f %f", sp(0,0), sp(1,0), sp(2,0));  
+    sp = getAngularSetpoint(qsp, meas);
+    
+    // Debugging code start
+    // Convert the quaternion to Euler angles
+    double roll, pitch, yaw;
+    tf::Matrix3x3(robotQuat).getRPY(roll, pitch, yaw);
+
+    // Convert radians to degrees
+    roll = roll * 180.0 / M_PI;
+    pitch = pitch * 180.0 / M_PI;
+    yaw = yaw * 180.0 / M_PI;
+
+    // Print out the Euler angles in degrees
+    ROS_INFO("Roll: %.2f degrees, Pitch: %.2f degrees, Yaw: %.2f degrees", roll, pitch, yaw);
+    // Debugging code end
+    
     ROS_INFO("_____________");
+
+    thruster_mixer();
  }
 
-void lin_vel_x_callback(const std_msgs::Float64::ConstPtr& data) {
-    update = true;
-    x_vel = data->data;
+void odometryFilteredListenerCallback(nav_msgs::Odometry msg) {
+    robotQuat[0] = msg.pose.pose.orientation.x;
+    robotQuat[1] = msg.pose.pose.orientation.y;
+    robotQuat[2] = msg.pose.pose.orientation.z;
+    robotQuat[3] = msg.pose.pose.orientation.w;
+    
+    for (int i = 0; i<8; i++) {
+        thruster_msgs::ThrustOutput msg;
+        msg.num = thruster_mapping[i];
+        msg.val = thruster_values[i];
+        quaternion_pub.publish(msg);
+        if (i == 7)
+            ROS_DEBUG("Published to %i thrust val %f", msg.num, msg.val);
+    }
+
+    // Eventually create a cascading PID loop using the angular velocity of the vehicle
+    // robotState[9] = msg.twist.twist.angular.x;
+    // robotState[10] = msg.twist.twist.angular.y;
+    // robotState[11] = msg.twist.twist.angular.z;
+    // ROS_INFO("Angular Velocities: X=%f, Y=%f, Z=%f", robotState[9], robotState[10], robotState[11]);
 }
 
-void lin_vel_y_callback(const std_msgs::Float64::ConstPtr& data) {
-    update = true;
-    y_vel = data->data;
+void quat_x_callback(const std_msgs::Float64::ConstPtr& data) {
+    goal_x = data->data;
 }
 
-void lin_vel_z_callback(const std_msgs::Float64::ConstPtr& data) {
-    update = true;
-    z_vel = data->data;
+void quat_y_callback(const std_msgs::Float64::ConstPtr& data) {
+    goal_y = data->data;
+}
+
+void quat_z_callback(const std_msgs::Float64::ConstPtr& data) {
+    goal_z = data->data;
 }
 
 void thruster_mixer() {
-    int max = fmax(1, fabs(x_vel) + fabs(y_vel));
+    // int max = fmax(1, fabs(sp(0,0)) + fabs(sp(1,0)));
+    int max = 1;
     // Normalize
     // Max is always between 1 and 2. z_vel doesn't contribute to it
-    thruster_values[0] = (x_vel - y_vel)/max;
-    thruster_values[1] = (x_vel + y_vel)/max;
-    thruster_values[2] = (-x_vel + y_vel)/max;
-    thruster_values[3] = (-x_vel - y_vel)/max;
-    thruster_values[4] = z_vel;
-    thruster_values[5] = z_vel;
-    thruster_values[6] = z_vel;
-    thruster_values[7] = z_vel;
+
+    thruster_values[0] = sp(2,0) * max;
+    thruster_values[1] = -sp(2,0) * max;
+    thruster_values[2] = sp(2,0) * max;
+    thruster_values[3] = -sp(2,0) * max;
+
+    thruster_values[4] = 0;
+    thruster_values[5] = 0;
+    thruster_values[6] = 0;
+    thruster_values[7] = 0;
+    // thruster_values[4] = (sp(0,0) - sp(1,0))*max;
+    // thruster_values[5] = (sp(0,0) - sp(1,0))*max;
+    // thruster_values[6] = (sp(0,0) + sp(1,0))*max;
+    // thruster_values[7] = (sp(0,0) + sp(1,0))*max;
 }
 
 int main (int argc, char **argv) {
-    ros::init(argc, argv, "linear_velocity_controller");
+
+    ros::init(argc, argv, "quaternion_controller");
     if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
         ros::console::notifyLoggerLevelsChanged();
     }
 
-    ros::NodeHandle linear_vel_node;
+    ros::NodeHandle quaternion_node;
 
-    ros::Subscriber linear_vel_x = linear_vel_node.subscribe("linear_vel/x", linear_vel_size, lin_vel_x_callback);
-    ros::Subscriber linear_vel_y = linear_vel_node.subscribe("linear_vel/y", linear_vel_size, lin_vel_y_callback);
-    ros::Subscriber linear_vel_z = linear_vel_node.subscribe("linear_vel/z", linear_vel_size, lin_vel_z_callback);
+    ros::Subscriber quaternion_x = quaternion_node.subscribe("orientation/x", 1, quat_x_callback);
+    ros::Subscriber quaternion_y = quaternion_node.subscribe("orientation/y", 1, quat_y_callback);
+    ros::Subscriber quaternion_z = quaternion_node.subscribe("orientation/z", 1, quat_z_callback);
     
-    linear_vel_pub = linear_vel_node.advertise<thruster_msgs::ThrustOutput>("thrusters/lv_control_input", thrusters_size);
+    quaternion_pub = quaternion_node.advertise<thruster_msgs::ThrustOutput>("thrusters/q_control_input", thrusters_size);
 
     ros::Rate loop_rate(10); //todo fix magic number
 
@@ -117,24 +158,9 @@ int main (int argc, char **argv) {
         thruster_values[i] = 0;
     }
 
-
-    while(ros::ok()) {
-        //TODO:SOMONE if no new inputs sent after 5s, turn off motors
-
-        if (update) {
-            thruster_mixer();
-            for (int i = 0; i<8; i++) {
-                thruster_msgs::ThrustOutput msg;
-                msg.num = thruster_mapping[i];
-                msg.val = thruster_values[i];
-                linear_vel_pub.publish(msg);
-                if (i == 7)
-                    ROS_DEBUG("Published to %i thrust val %f", msg.num, msg.val);
-            }
-            update = false;
-        }
-        ros::spinOnce();
-    }
+    odometryFilteredListener = quaternion_node.subscribe<nav_msgs::Odometry>("odometry/filtered", 1, odometryFilteredListenerCallback);
+    ros::Timer timer = quaternion_node.createTimer(ros::Duration(0.1), run);
+    ros::spin();
     delete [] thruster_mapping;
     delete [] thruster_values;
     return 0;

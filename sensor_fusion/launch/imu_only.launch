@@ -1,0 +1,6 @@
+<launch>
+  <!-- This launch file is for mantaray to move autonomously -->
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true" ns="mantaray">
+    <rosparam command="load" file="$(find sensor_fusion)/config/imu_only_ekf_params.yaml" />
+  </node>
+</launch>
