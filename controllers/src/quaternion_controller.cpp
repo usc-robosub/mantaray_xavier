@@ -54,7 +54,6 @@ void run(const ros::TimerEvent&){
     
     ROS_INFO("Desired Setpoint Quaternion: (W=%f, X=%f, Y=%f, Z=%f)", qsp.w(), qsp.x(), qsp.y(), qsp.z());
     ROS_INFO("Desired Setpoint Degrees: (X=%f, Y=%f, Z=%f)", goal_x, goal_y, qsp.z());
-
     
     sp = getAngularSetpoint(qsp, meas);
     
@@ -82,15 +81,6 @@ void odometryFilteredListenerCallback(nav_msgs::Odometry msg) {
     robotQuat[1] = msg.pose.pose.orientation.y;
     robotQuat[2] = msg.pose.pose.orientation.z;
     robotQuat[3] = msg.pose.pose.orientation.w;
-    
-    for (int i = 0; i<8; i++) {
-        thruster_msgs::ThrustOutput msg;
-        msg.num = thruster_mapping[i];
-        msg.val = thruster_values[i];
-        quaternion_pub.publish(msg);
-        if (i == 7)
-            ROS_DEBUG("Published to %i thrust val %f", msg.num, msg.val);
-    }
 
     // Eventually create a cascading PID loop using the angular velocity of the vehicle
     // robotState[9] = msg.twist.twist.angular.x;
@@ -117,19 +107,43 @@ void thruster_mixer() {
     // Normalize
     // Max is always between 1 and 2. z_vel doesn't contribute to it
 
-    thruster_values[0] = sp(2,0) * max;
-    thruster_values[1] = -sp(2,0) * max;
-    thruster_values[2] = sp(2,0) * max;
-    thruster_values[3] = -sp(2,0) * max;
+    // thruster_values[0] = sp(2,0) * max;
+    // thruster_values[1] = -sp(2,0) * max;
+    // thruster_values[2] = sp(2,0) * max;
+    // thruster_values[3] = -sp(2,0) * max;
 
-    thruster_values[4] = 0;
-    thruster_values[5] = 0;
-    thruster_values[6] = 0;
-    thruster_values[7] = 0;
-    // thruster_values[4] = (sp(0,0) - sp(1,0))*max;
-    // thruster_values[5] = (sp(0,0) - sp(1,0))*max;
+    // thruster_values[0] = -joy.LeftJoystickY * 25 - joy.LeftJoystickX * 25
+    // thruster_values[1] = -joy.LeftJoystickY * 25 + joy.LeftJoystickX * 25
+    // thruster_values[2] = joy.LeftJoystickY * 25 + joy.LeftJoystickX * 25
+    // thruster_values[3] = joy.LeftJoystickY * 25 - joy.LeftJoystickX * 25
+    thruster_values[4] = -sp(0,0) - sp(1,0);
+    thruster_values[5] = -sp(0,0) + sp(1,0);
+    thruster_values[6] = sp(0,0) - sp(1,0);
+    thruster_values[7] = sp(0,0) + sp(1,0);
+
+    // thruster_values[4] = -sp(1,0);
+    // thruster_values[5] = sp(1,0);
+    // thruster_values[6] = -sp(1,0);
+    // thruster_values[7] = sp(1,0);
+
+    // thruster_values[4] = 0;
+    // thruster_values[5] = 0;
+    // thruster_values[6] = 0;
+    // thruster_values[7] = 0;
+
+    // thruster_values[4] = (-sp(0,0) - sp(1,0))*max;
+    // thruster_values[5] = (-sp(0,0) - sp(1,0))*max;
     // thruster_values[6] = (sp(0,0) + sp(1,0))*max;
     // thruster_values[7] = (sp(0,0) + sp(1,0))*max;
+
+    for (int i = 0; i<8; i++) {
+        thruster_msgs::ThrustOutput msg;
+        msg.num = thruster_mapping[i];
+        msg.val = thruster_values[i];
+        quaternion_pub.publish(msg);
+        // if (i == 7)
+        //     ROS_DEBUG("Published to %i thrust val %f", msg.num, msg.val);
+    }
 }
 
 int main (int argc, char **argv) {
