@@ -1,14 +1,17 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mantaray">
-
+  <material name="green">
+    <color rgba="0.1 0.8 0.1 0.8"/>
+  </material>
   <xacro:property name="description_pkg" value="mantaray_transforms" />
 
   <!-- Base Link -->
   <link name="base_link">
     <visual>
       <geometry>
-        <mesh filename="$(find ${description_pkg})/meshes/visual_base_link.stl"/>
+        <mesh filename="package://mantaray_transforms/meshes/visual_base_link.stl"/>
       </geometry>
+      <material name="green"/>
     </visual>
     <collision>
       <geometry>
@@ -34,7 +37,7 @@
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="0.013 0.005 0.01" rpy="0 0 0"/> <!-- Adjust position inside hull -->
+    <origin xyz="0.05 -0.13 0.03" rpy="0 0 0"/> <!-- Adjust position inside hull -->
   </joint>
 
   <!-- DVL Sensor -->
@@ -54,19 +57,19 @@
   <joint name="dvl_joint" type="fixed">
     <parent link="base_link"/>
     <child link="dvl_link"/>
-    <origin xyz="0 0.04 0" rpy="0 0 0"/> <!-- Adjust position to right side -->
+    <origin xyz="-0.1 0 -0.13" rpy="0 0 0"/> <!-- Adjust position to right side -->
   </joint>
 
   <!-- Pressure Sensor -->
   <link name="pressure_sensor_link">
     <visual>
       <geometry>
-        <box size="0.05 0.05 0.05"/> <!-- Adjust size as needed -->
+        <box size="0.02 0.02 0.05"/> <!-- Adjust size as needed -->
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <box size="0.05 0.05 0.05"/> <!-- Match visual size -->
+        <box size="0.02 0.02 0.05"/> <!-- Match visual size -->
       </geometry>
     </collision>
   </link>
@@ -74,7 +77,7 @@
   <joint name="pressure_sensor_joint" type="fixed">
     <parent link="base_link"/>
     <child link="pressure_sensor_link"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Adjust position underneath -->
+    <origin xyz="0 0 -0.13" rpy="0 0 0"/> <!-- Adjust position underneath -->
   </joint>
 
 </robot>

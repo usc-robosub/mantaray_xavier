@@ -1,4 +1,11 @@
 <launch>
   <param name="robot_description"
          command="$(find xacro)/xacro '$(find mantaray_transforms)/urdf/mantaray_robot.xacro'" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen">
+    <param name="publish_frequency" value="50.0" />
+  </node>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mantaray_transforms)/config/default_rviz_config.rviz" required="true"/>
+
+
 </launch>
