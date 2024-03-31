@@ -1,5 +1,12 @@
 <launch>
-    <include file="$(find zed_wrapper)/launch/zedm.launch">
-        <arg name="publish_urdf" value="false" />
-    </include>
-</launch>
+  <arg name="namespace" default="mantaray"/>
+  <param name="output_type" value="sim"/>
+  <include file="$(find thruster)/launch/thruster.launch">
+    <arg name="sim" default="true"/>
+    <arg name="namespace" default="mantaray"/>
+  </include>
+  <group ns="$(arg namespace)">
+    <node name="quaternion_controller" pkg="controllers" type="quaternion_controller" output="screen" respawn="true"/>
+    <node name="linear_vel_controller" pkg="controllers" type="linear_velocity_controller" output="screen" respawn="true"/>
+  </group>
+</launch> 

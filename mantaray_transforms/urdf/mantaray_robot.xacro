@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mantaray">
+
+  <xacro:property name="description_pkg" value="mantaray_description" />
+
+  <!-- Base Link -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="$(find ${description_pkg})/meshes/visual_base_link.stl"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.63 0.81 0.31"/> <!-- Example size, adjust as needed -->
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- IMU Sensor -->
+  <link name="imu_link">
+    <visual>
+      <geometry>
+        <box size="0.035 0.05 0.001"/> <!-- Adjust size as needed -->
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.035 0.05 0.001"/> <!-- Adjust size as needed -->
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0.013 0.005 0.01" rpy="0 0 0"/> <!-- Adjust position inside hull -->
+  </joint>
+
+  <!-- DVL Sensor -->
+  <link name="dvl_link">
+    <visual>
+      <geometry>
+        <box size="0.07 0.07 0.02"/> <!-- Adjust size as needed -->
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.07 0.07 0.02"/> <!-- Adjust size as needed -->
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="dvl_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="dvl_link"/>
+    <origin xyz="0 0.04 0" rpy="0 0 0"/> <!-- Adjust position to right side -->
+  </joint>
+
+  <!-- Pressure Sensor -->
+  <link name="pressure_sensor_link">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.05"/> <!-- Adjust size as needed -->
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.05 0.05 0.05"/> <!-- Match visual size -->
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="pressure_sensor_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="pressure_sensor_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Adjust position underneath -->
+  </joint>
+
+</robot>

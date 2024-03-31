@@ -1,0 +1,4 @@
+<launch>
+  <param name="robot_description"
+         command="$(find xacro)/xacro '$(find mantaray_transforms)/urdf/mantaray_robot.xacro'" />
+</launch>
