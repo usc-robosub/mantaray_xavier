@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mantaray">
 
-  <xacro:property name="description_pkg" value="mantaray_description" />
+  <xacro:property name="description_pkg" value="mantaray_transforms" />
 
   <!-- Base Link -->
   <link name="base_link">
