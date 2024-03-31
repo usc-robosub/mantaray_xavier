@@ -7,4 +7,7 @@
     </node>
   </group>
   <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_base" args="0 0 0 0 0 0 1 world mantaray/base_link"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mantaray_transforms)/config/default_rviz_config.rviz" required="true"/>
+
+
 </launch>

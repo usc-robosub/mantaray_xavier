@@ -63,22 +63,22 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base_link:
+        mantaray/base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        dvl_link:
+        mantaray/dvl_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        imu_link:
+        mantaray/imu_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        pressure_sensor_link:
+        mantaray/pressure_sensor_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -93,7 +93,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: base_link
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
@@ -125,17 +125,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -0.04480515792965889
-        Y: -0.1492336541414261
-        Z: -0.11608626693487167
+        X: -0.022323232144117355
+        Y: 0.028266269713640213
+        Z: -0.002173471264541149
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5803987979888916
+      Pitch: 0.44539880752563477
       Target Frame: <Fixed Frame>
-      Yaw: 5.983583450317383
+      Yaw: 5.568592548370361
     Saved: ~
 Window Geometry:
   Displays:
