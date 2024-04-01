@@ -1,9 +1,9 @@
 <launch>
   <arg name="namespace" default="mantaray"/>
-  <param name="output_type" value="sim"/>
+  <param name="output_type" value="real"/>
   <include file="$(find thruster)/launch/thruster.launch">
-    <arg name="sim" default="true"/>
-    <arg name="namespace" default="mantaray"/>
+    <!-- <arg name="sim" value="false"/> -->
+    <arg name="namespace" value="mantaray"/>
   </include>
   <group ns="$(arg namespace)">
     <node name="quaternion_controller" pkg="controllers" type="quaternion_controller" output="screen" respawn="true"/>

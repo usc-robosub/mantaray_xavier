@@ -6,5 +6,5 @@
       <param name="publish_frequency" value="50.0" />
     </node>
   </group>
-  <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_base" args="0 0 0 0 0 0 1 world mantaray/base_link"/>
+  <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_base" args="0 0 0 0 0 0 1 world mantaray/base_link"/> -->
 </launch>

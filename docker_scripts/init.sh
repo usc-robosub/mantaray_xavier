@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 chmod o+rw /dev/i2c-0
+chmod o+rw /dev/i2c-1
 source ~/.bashrc
 source ~/catkin_ws/devel/setup.bash
 export ROS_IP=192.168.23.105
