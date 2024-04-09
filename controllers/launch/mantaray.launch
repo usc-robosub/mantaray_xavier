@@ -5,6 +5,7 @@
     <!-- <arg name="sim" value="false"/> -->
     <arg name="namespace" value="mantaray"/>
   </include>
+  <include file="$(find mantaray_transforms)/launch/create_transforms.launch"/>
   <group ns="$(arg namespace)">
     <node name="quaternion_controller" pkg="controllers" type="quaternion_controller" output="screen" respawn="true"/>
     <node name="linear_vel_controller" pkg="controllers" type="linear_velocity_controller" output="screen" respawn="true"/>
