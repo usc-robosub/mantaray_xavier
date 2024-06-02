@@ -6,23 +6,6 @@ Need to connect robotQuat to RobotLocalization
 */
 #include "quaternion_controller.h"
 
-ros::Publisher quaternion_pub;
-
-ros::Subscriber odometryFilteredListener;
-
-tf::Quaternion robotQuat;
-Eigen::Matrix<double, 3, 1> sp;
-
-uint16_t quaternion_size = 1; //size of linear velocity messages queue
-uint16_t thrusters_size = 1; //size of thruster messages queue
-uint8_t* thruster_mapping;
-double* thruster_values;
-
-bool update = false;
-double goal_x = 0;
-double goal_y = 0;
-double goal_z = 0;
-
 Eigen::Matrix <double, 3, 1> getAngularSetpoint(Eigen::Quaternion<double> sp, Eigen::Quaternion<double> meas) {
   
     Eigen::Quaternion<double> err = sp * meas.conjugate(); // error around each axis of rotation
@@ -68,7 +51,7 @@ void run(const ros::TimerEvent&){
     yaw = yaw * 180.0 / M_PI;
 
     // Print out the Euler angles in degrees
-    ROS_INFO("Roll: %.2f degrees, Pitch: %.2f degrees, Yaw: %.2f degrees", roll, pitch, yaw);
+    // ROS_INFO("Roll: %.2f degrees, Pitch: %.2f degrees, Yaw: %.2f degrees", roll, pitch, yaw);
     // Debugging code end
     
     ROS_INFO("_____________");
@@ -81,6 +64,7 @@ void odometryFilteredListenerCallback(nav_msgs::Odometry msg) {
     robotQuat[1] = msg.pose.pose.orientation.y;
     robotQuat[2] = msg.pose.pose.orientation.z;
     robotQuat[3] = msg.pose.pose.orientation.w;
+    // ROS_INFO("Orientation: X=%f, Y=%f, Z=%f, W=%f", robotQuat[0], robotQuat[1], robotQuat[2], robotQuat[3]);
 
     // Eventually create a cascading PID loop using the angular velocity of the vehicle
     // robotState[9] = msg.twist.twist.angular.x;
@@ -155,6 +139,7 @@ int main (int argc, char **argv) {
 
     ros::NodeHandle quaternion_node;
 
+    // Goal orientation
     ros::Subscriber quaternion_x = quaternion_node.subscribe("orientation/x", 1, quat_x_callback);
     ros::Subscriber quaternion_y = quaternion_node.subscribe("orientation/y", 1, quat_y_callback);
     ros::Subscriber quaternion_z = quaternion_node.subscribe("orientation/z", 1, quat_z_callback);
@@ -172,6 +157,7 @@ int main (int argc, char **argv) {
         thruster_values[i] = 0;
     }
 
+    // Current orientation
     odometryFilteredListener = quaternion_node.subscribe<nav_msgs::Odometry>("odometry/filtered", 1, odometryFilteredListenerCallback);
     ros::Timer timer = quaternion_node.createTimer(ros::Duration(0.1), run);
     ros::spin();
