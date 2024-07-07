@@ -1,0 +1,3 @@
+*.pyc
+docker_scripts/core
+*core
